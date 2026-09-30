@@ -15,6 +15,10 @@ cask "gopdf" do
     strategy :github_latest
   end
 
+  postflight do
+    system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{appdir}/GoPDF.app"]
+  end
+
   depends_on macos: :monterey
 
   app "GoPDF.app"
