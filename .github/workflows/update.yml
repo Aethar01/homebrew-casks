@@ -1,0 +1,102 @@
+name: Update gopdf cask
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - gopdf-release
+
+concurrency:
+  group: update-gopdf
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.latest.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compare the cask with the latest release
+        id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest="$(gh api repos/Aethar01/gopdf/releases/latest --jq .tag_name)"
+          current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/gopdf.rb)"
+          echo "Cask is at ${current}, latest release is ${latest}"
+          if [ -n "$latest" ] && [ "$latest" != "$current" ]; then
+            echo "version=${latest}" >> "$GITHUB_OUTPUT"
+          fi
+
+  update:
+    needs: check
+    if: needs.check.outputs.version != ''
+    runs-on: macos-26
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up git
+        uses: Homebrew/actions/git-user-config@main
+
+      - name: Update version and checksums
+        run: |
+          # GitHub publishes a sha256 digest for every release asset.
+          digest() {
+            gh api "repos/Aethar01/gopdf/releases/tags/${VERSION}" \
+              --jq ".assets[] | select(.name == \"gopdf-${VERSION}-darwin-$1.dmg\") | .digest" |
+              sed 's/^sha256://'
+          }
+          arm="$(digest arm64)"
+          intel="$(digest amd64)"
+          if [ -z "$arm" ] || [ -z "$intel" ]; then
+            echo "Release ${VERSION} is missing a macOS DMG or its digest" >&2
+            exit 1
+          fi
+
+          sed -i '' -E \
+            -e "s/^  version \".*\"$/  version \"${VERSION}\"/" \
+            -e "s/(arm: +)\"[0-9a-f]{64}\"/\1\"${arm}\"/" \
+            -e "s/(intel: +)\"[0-9a-f]{64}\"/\1\"${intel}\"/" \
+            Casks/gopdf.rb
+          git diff
+
+          tapped="$(brew info --cask --json=v2 aethar01/casks/gopdf | jq -r '.casks[0].version')"
+          if [ "$tapped" != "$VERSION" ]; then
+            echo "Homebrew sees gopdf ${tapped}, not the edited ${VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Audit cask
+        run: brew audit --cask --strict aethar01/casks/gopdf
+
+      - name: Install cask
+        run: brew install --cask aethar01/casks/gopdf
+
+      - name: Verify app installation
+        run: test -d "/Applications/GoPDF.app"
+
+      - name: Uninstall cask
+        run: brew uninstall --cask aethar01/casks/gopdf
+
+      - name: Push the update
+        run: |
+          git commit -am "Update gopdf to version ${VERSION}"
+          git push origin HEAD:main

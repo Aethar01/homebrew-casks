@@ -21,13 +21,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Audit cask
-        run: brew audit --cask --strict aethar01/gopdf/gopdf
+        run: brew audit --cask --strict aethar01/casks/gopdf
 
       - name: Install cask
-        run: brew install --cask aethar01/gopdf/gopdf
+        run: brew install --cask aethar01/casks/gopdf
 
       - name: Verify app installation
         run: test -d "/Applications/GoPDF.app"
 
       - name: Uninstall cask
-        run: brew uninstall --cask aethar01/gopdf/gopdf
+        run: brew uninstall --cask aethar01/casks/gopdf
