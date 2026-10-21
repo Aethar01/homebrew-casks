@@ -1,30 +1,42 @@
-# Aethar01 Casks
+# Aethar01 Tap
 
-Homebrew casks for Aethar01's apps.
+Homebrew casks and formulae for Aethar01's apps.
 
 ## Installation
 
 Install GoPDF:
 
 ```sh
-brew install aethar01/casks/gopdf
+brew install aethar01/tap/gopdf
 ```
 
 Or tap the repository first:
 
 ```sh
-brew tap aethar01/casks
+brew tap aethar01/tap
 brew install gopdf
 ```
 
 In a `Brewfile`:
 
 ```ruby
-tap "aethar01/casks"
+tap "aethar01/tap"
 cask "gopdf"
 ```
 
 The cask installs `GoPDF.app` into `/Applications`.
+
+Install faster (built from source with Go):
+
+```sh
+brew install aethar01/tap/faster
+```
+
+In a `Brewfile`:
+
+```ruby
+brew "aethar01/tap/faster"
+```
 
 ## Updates
 

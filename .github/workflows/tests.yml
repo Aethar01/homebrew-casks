@@ -21,13 +21,38 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Audit cask
-        run: brew audit --cask --strict aethar01/casks/gopdf
+        run: brew audit --cask --strict aethar01/tap/gopdf
 
       - name: Install cask
-        run: brew install --cask aethar01/casks/gopdf
+        run: brew install --cask aethar01/tap/gopdf
 
       - name: Verify app installation
         run: test -d "/Applications/GoPDF.app"
 
       - name: Uninstall cask
-        run: brew uninstall --cask aethar01/casks/gopdf
+        run: brew uninstall --cask aethar01/tap/gopdf
+
+  formula:
+    strategy:
+      matrix:
+        os: [macos-15-intel, macos-26]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Audit formula
+        run: brew audit --formula --strict aethar01/tap/faster
+
+      - name: Install formula
+        run: brew install --build-from-source aethar01/tap/faster
+
+      - name: Test formula
+        run: brew test aethar01/tap/faster
+
+      - name: Uninstall formula
+        run: brew uninstall aethar01/tap/faster

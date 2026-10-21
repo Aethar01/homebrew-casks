@@ -78,23 +78,23 @@ jobs:
             Casks/gopdf.rb
           git diff
 
-          tapped="$(brew info --cask --json=v2 aethar01/casks/gopdf | jq -r '.casks[0].version')"
+          tapped="$(brew info --cask --json=v2 aethar01/tap/gopdf | jq -r '.casks[0].version')"
           if [ "$tapped" != "$VERSION" ]; then
             echo "Homebrew sees gopdf ${tapped}, not the edited ${VERSION}" >&2
             exit 1
           fi
 
       - name: Audit cask
-        run: brew audit --cask --strict aethar01/casks/gopdf
+        run: brew audit --cask --strict aethar01/tap/gopdf
 
       - name: Install cask
-        run: brew install --cask aethar01/casks/gopdf
+        run: brew install --cask aethar01/tap/gopdf
 
       - name: Verify app installation
         run: test -d "/Applications/GoPDF.app"
 
       - name: Uninstall cask
-        run: brew uninstall --cask aethar01/casks/gopdf
+        run: brew uninstall --cask aethar01/tap/gopdf
 
       - name: Push the update
         run: |
