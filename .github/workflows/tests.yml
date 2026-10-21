@@ -21,16 +21,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Audit cask
-        run: brew audit --cask --strict aethar01/tap/gopdf
+        run: brew audit --cask --strict aethar01/tap/onon
 
       - name: Install cask
-        run: brew install --cask aethar01/tap/gopdf
+        run: brew install --cask aethar01/tap/onon
 
       - name: Verify app installation
-        run: test -d "/Applications/GoPDF.app"
+        run: test -d "/Applications/onon.app" && onon -v
 
       - name: Uninstall cask
-        run: brew uninstall --cask aethar01/tap/gopdf
+        run: brew uninstall --cask aethar01/tap/onon
 
   formula:
     strategy:

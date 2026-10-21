@@ -1,4 +1,4 @@
-name: Update gopdf cask
+name: Update onon cask
 
 on:
   schedule:
@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types:
-      - gopdf-release
+      - onon-release
 
 concurrency:
-  group: update-gopdf
+  group: update-onon
   cancel-in-progress: false
 
 jobs:
@@ -28,8 +28,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          latest="$(gh api repos/Aethar01/gopdf/releases/latest --jq .tag_name)"
-          current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/gopdf.rb)"
+          latest="$(gh api repos/Aethar01/onon/releases/latest --jq .tag_name)"
+          current="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/onon.rb)"
           echo "Cask is at ${current}, latest release is ${latest}"
           if [ -n "$latest" ] && [ "$latest" != "$current" ]; then
             echo "version=${latest}" >> "$GITHUB_OUTPUT"
@@ -60,8 +60,8 @@ jobs:
         run: |
           # GitHub publishes a sha256 digest for every release asset.
           digest() {
-            gh api "repos/Aethar01/gopdf/releases/tags/${VERSION}" \
-              --jq ".assets[] | select(.name == \"gopdf-${VERSION}-darwin-$1.dmg\") | .digest" |
+            gh api "repos/Aethar01/onon/releases/tags/${VERSION}" \
+              --jq ".assets[] | select(.name == \"onon-${VERSION}-darwin-$1.dmg\") | .digest" |
               sed 's/^sha256://'
           }
           arm="$(digest arm64)"
@@ -75,28 +75,28 @@ jobs:
             -e "s/^  version \".*\"$/  version \"${VERSION}\"/" \
             -e "s/(arm: +)\"[0-9a-f]{64}\"/\1\"${arm}\"/" \
             -e "s/(intel: +)\"[0-9a-f]{64}\"/\1\"${intel}\"/" \
-            Casks/gopdf.rb
+            Casks/onon.rb
           git diff
 
-          tapped="$(brew info --cask --json=v2 aethar01/tap/gopdf | jq -r '.casks[0].version')"
+          tapped="$(brew info --cask --json=v2 aethar01/tap/onon | jq -r '.casks[0].version')"
           if [ "$tapped" != "$VERSION" ]; then
-            echo "Homebrew sees gopdf ${tapped}, not the edited ${VERSION}" >&2
+            echo "Homebrew sees onon ${tapped}, not the edited ${VERSION}" >&2
             exit 1
           fi
 
       - name: Audit cask
-        run: brew audit --cask --strict aethar01/tap/gopdf
+        run: brew audit --cask --strict aethar01/tap/onon
 
       - name: Install cask
-        run: brew install --cask aethar01/tap/gopdf
+        run: brew install --cask aethar01/tap/onon
 
       - name: Verify app installation
-        run: test -d "/Applications/GoPDF.app"
+        run: test -d "/Applications/onon.app" && onon -v
 
       - name: Uninstall cask
-        run: brew uninstall --cask aethar01/tap/gopdf
+        run: brew uninstall --cask aethar01/tap/onon
 
       - name: Push the update
         run: |
-          git commit -am "Update gopdf to version ${VERSION}"
+          git commit -am "Update onon to version ${VERSION}"
           git push origin HEAD:main

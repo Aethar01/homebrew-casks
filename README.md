@@ -4,27 +4,27 @@ Homebrew casks and formulae for Aethar01's apps.
 
 ## Installation
 
-Install GoPDF:
+Install onon:
 
 ```sh
-brew install aethar01/tap/gopdf
+brew install aethar01/tap/onon
 ```
 
 Or tap the repository first:
 
 ```sh
 brew tap aethar01/tap
-brew install gopdf
+brew install onon
 ```
 
 In a `Brewfile`:
 
 ```ruby
 tap "aethar01/tap"
-cask "gopdf"
+cask "onon"
 ```
 
-The cask installs `GoPDF.app` into `/Applications`.
+The cask installs `onon.app` into `/Applications` and the `onon` command. It was called `gopdf` before 0.8.0; `brew upgrade` follows the rename.
 
 Install faster (built from source with Go):
 
@@ -40,8 +40,8 @@ brew "aethar01/tap/faster"
 
 ## Updates
 
-`.github/workflows/update.yml` checks for a new GoPDF release every hour, or
-straight away when the GoPDF release workflow dispatches `gopdf-release`. It
+`.github/workflows/update.yml` checks for a new onon release every hour, or
+straight away when the onon release workflow dispatches `onon-release`. It
 updates the version and checksums, audits and test-installs the cask, then
 pushes to `main`.
 
