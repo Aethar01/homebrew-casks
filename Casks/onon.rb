@@ -7,7 +7,7 @@ cask "onon" do
 
   url "https://github.com/Aethar01/onon/releases/download/#{version}/onon-#{version}-darwin-#{arch}.dmg"
   name "onon"
-  desc "Keyboard-driven document viewer configured in Lua"
+  desc "Quiet reader for the keyboard"
   homepage "https://ononreader.com/"
 
   livecheck do
